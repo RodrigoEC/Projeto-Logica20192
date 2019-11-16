@@ -1,8 +1,9 @@
 module appStore
 
-// --------------------Assinaturas-----------------
+// SIGNATURES
+
 sig Usuario {
-	devices: set Device,
+	devices: some Device,
 	contas: one Conta
 }
 
@@ -12,9 +13,21 @@ sig Conta {
 }
 
 sig Device {
-	id: String,
-	memory: one String
+	memory: Int,
+	apps: set App
 }
+
+sig App {
+	name: String,
+	size: Int, 
+	version: String,
+	price: Int
+}
+
+
+
+// FACTS
+
 fact {
 
 	all disj u1,u2:Usuario | !(some c:Conta |(c in u1.contas and c in u2.contas))
@@ -22,8 +35,9 @@ fact {
 	all c: Conta | c.credit >= 0
 
 }
+
+
 pred show[] {
 }
-
-run show for 10
+run show for 3
 
