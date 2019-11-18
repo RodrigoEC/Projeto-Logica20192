@@ -2,7 +2,7 @@ MODULE main
     VAR
         deviceCapacity: integer;
         appStatus: {uninstalled, updated, outdated};
-	    creditsAcc: integer;
+        creditsAcc: integer;
         priceApp: integer;
         appSize: integer;
         attSize: integer;
@@ -14,8 +14,8 @@ MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSiz
     ASSIGN
         next(appStatus) :=
                     case
-                        -- App desinstalado		
-			            (priceApp = 0) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {updated};
+                        -- App desinstalado
+                        (priceApp = 0) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {updated};
                         (priceApp = 0) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
                         (priceApp > 0) & (creditsAcc >= priceApp) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {updated};
                         (priceApp > 0) & (creditsAcc < priceApp) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {uninstalled};
