@@ -1,0 +1,55 @@
+MODULE main
+    VAR
+        deviceCapacity: integer;
+        appStatus: {uninstalled, updated, outdated};
+	    creditsAcc: integer;
+        priceApp: integer;
+        appSize: integer;
+        attSize: integer;
+        association: boolean;
+        p1 : process appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSize, association);
+    ASSIGN
+
+MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSize, association)
+    ASSIGN
+        next(appStatus) :=
+                    case
+                        -- App desinstalado		
+			            (priceApp = 0) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {updated};
+                        (priceApp = 0) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
+                        (priceApp > 0) & (creditsAcc >= priceApp) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {updated};
+                        (priceApp > 0) & (creditsAcc < priceApp) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {uninstalled};
+                        (priceApp > 0) & (creditsAcc >= priceApp) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
+                        (priceApp > 0) & (creditsAcc < priceApp) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
+                        
+                        --App instalado
+                        (priceApp = 0) & ((appStatus = updated) | (appStatus = outdated)) & (appSize <= deviceCapacity): {updated, outdated};
+                        (priceApp = 0) & ((appStatus = updated) | (appStatus = outdated)) & (appSize > deviceCapacity): {updated, outdated};
+                        (priceApp > 0) & (creditsAcc >= priceApp) & ((appStatus = updated | (appStatus = outdated)) & (appSize <= deviceCapacity): {updated, outdated};
+                        (priceApp > 0) & (creditsAcc < priceApp) & ((appStatus = updated | (appStatus = outdated)) & (appSize <= deviceCapacity): {updated, outdated};
+                        (priceApp > 0) & (creditsAcc >= priceApp) & ((appStatus = updated | (appStatus = outdated)) & (appSize > deviceCapacity): {updated, outdated};
+                        (priceApp > 0) & (creditsAcc < priceApp) & ((appStatus = updated | (appStatus = outdated)) & (appSize > deviceCapacity): {updated, outdated};
+                    esac;
+        next(deviceCapacity) :=
+                    case
+                        (appStatus = updated) | (appStatus = outdated): deviceCapacity - appSize;
+                    esac;
+        next(creditsAcc) :=
+                    case
+                        (appStatus = updated) | (appStatus = outdated): creditsAcc - priceApp;
+                    esac;
+        next(association) :=
+                    case
+                        (appStatus = updated) | (appStatus = outdated): TRUE;
+                        (association = TRUE): TRUE;                   
+    FAIRNESS
+        running
+
+-- Isso aqui foi uma definições de umas parada que possivelmente eu usarei futuramente
+-- AF prepo -> Propoe que a condição sempre vai ser TRUE, no futuro.
+-- AG prepo -> Propoe que a condição seja sempre verdade em todos os estados.
+-- AX prepo -> Propoe que a condição seja alcançada no proximo estado.
+
+-- F prepo -> Propoe que a condição vai ser TRUE, no futuro.
+-- G prepo -> Propoe que a condição seja verdade em todos os estados.
+-- X prepo -> Propoe que a condição seja alcançada no proximo estado.
