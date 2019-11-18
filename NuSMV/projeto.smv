@@ -33,6 +33,7 @@ MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSiz
         next(deviceCapacity) :=
                     case
                         (appStatus = updated) | (appStatus = outdated): deviceCapacity - appSize;
+                        (association = TRUE) & (appStatus = uninstalled): deviceCapacity + appSize;
                     esac;
         next(creditsAcc) :=
                     case
