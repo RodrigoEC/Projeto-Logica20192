@@ -1,0 +1,40 @@
+Casos NuSMV:
+	Instalar app, observando as instruções de instalação:
+		Casos app desinstalado:
+			Se app é gratuito e está desinstalado e o espaço é suficiente então o app sera instalado na sua ultima versão
+			Se app é gratuito e está desinstalado e o espaço é não é suficiente então o app continuará desinstalado
+			Se app é pago e os créditos são suficientes e está desinstalado e o espaço é suficente então o app sera instalado na sua ultima versão
+			Se app é pago e os créditos não são suficientes e está desinstalado e o espaço é suficente então o app continuará desinstalado
+			Se app é pago e os créditos são suficientes e está desinstalado e o espaço não é suficente então o app continuará desinstalado
+			Se app é pago e os créditos não são suficientes e está desinstalado e o espaço não é suficente então o app continuará desinstalado
+
+		Casos app instalado:
+			Se app é gratuito e está instalado e o espaço é suficiente então o app continuará instalado na versão em que se encontra
+			Se app é gratuito e está instalado e o espaço é não é suficiente então o app continuará instalado na versão em que se encontra
+			Se app é pago e os créditos são suficientes e está instalado e o espaço é suficente então o app contuará na versão em que se encontra
+			Se app é pago e os créditos não são suficientes e está instalado e o espaço é suficente então o app contuará na versão em que se encontra
+			Se app é pago e os créditos são suficientes e está instalado e o espaço não é suficente então o app contuará na versão em que se encontra
+			Se app é pago e os créditos não são suficientes e está instalado e o espaço não é suficente então o app contuará na versão em que se encontra
+
+	Atualizar app observando as instruções:
+		Casos app desatualizado:
+			Se o app está desatualizado e o espaço é suficiente então sera atualizado
+			Se o app esta desatualizado e o espaço é insuficiente então continuará desatualizado
+		
+		Casos app atualizado:
+			Se o app está atualizado então continuará como está
+
+	Remover:
+		Casos app instalado:
+			Se o app esta instalado então sera desinstalado:
+
+		Casos app desinstalado:
+			Se o app está desinstalado então continuará desinstalado
+	
+
+	Associação:
+		Casos associado:
+			Se o app ta isntalado então associação sera = true
+			Se o app ta associado então ja foi instalado
+		Casos não associado:
+			Se o app não está associado então nunca foi instalado
