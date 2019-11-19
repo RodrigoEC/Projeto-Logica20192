@@ -5,16 +5,31 @@ MODULE main
         creditsAcc: integer;
         priceApp: integer;
         appSize: integer;
-        attSize: integer;
         association: boolean;
         p1 : process appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSize, association);
+
     ASSIGN
+        init(deviceCapacity) := 1000;
+        init(appStatus) := {uninstalled};
+	    init(creditsAcc) := 500;
+        init(priceApp) := 100;
+        init(appSize) :=  200;
+        init(association) := FALSE;
+
+    -- Verifica que nunca existe um estado em que o appStatus é diferente de unistalled e a associação é falsa
+    SPEC AF !(appStatus != uninstalled & association = FALSE);
+
+    -- Verifica que dado um estado de preço do app menor ou igual aos creditos da conta e appStatus = unistalled, o proximo estado é updated
+    LTLSPEC G (priceApp <= creditsAcc & appSize <= deviceCapacity & appStatus = uninstalled -> X(appStatus = updated))
+
+    -- Verifica que dado um estado de appStatus = unistalled, se priceApp > credtAcc ou appSize > deviceCapacity então o appStatus permance unistalled
+    LTLSPEC G (appStatus = uninstalled & (priceApp > creditsAcc | appSize > deviceCapacity) -> X(appStatus = uninstalled))
 
 MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSize, association)
     ASSIGN
         next(appStatus) :=
                     case
-                        -- App desinstalado
+                         -- Intalar app desinstalado
                         (priceApp = 0) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {updated};
                         (priceApp = 0) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
                         (priceApp > 0) & (creditsAcc >= priceApp) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {updated};
@@ -22,27 +37,40 @@ MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSiz
                         (priceApp > 0) & (creditsAcc >= priceApp) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
                         (priceApp > 0) & (creditsAcc < priceApp) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
                         
-                        --App instalado
+                        -- Instalar app instalado
                         (priceApp = 0) & ((appStatus = updated) | (appStatus = outdated)) & (appSize <= deviceCapacity): {updated, outdated};
                         (priceApp = 0) & ((appStatus = updated) | (appStatus = outdated)) & (appSize > deviceCapacity): {updated, outdated};
-                        (priceApp > 0) & (creditsAcc >= priceApp) & ((appStatus = updated | (appStatus = outdated)) & (appSize <= deviceCapacity): {updated, outdated};
-                        (priceApp > 0) & (creditsAcc < priceApp) & ((appStatus = updated | (appStatus = outdated)) & (appSize <= deviceCapacity): {updated, outdated};
-                        (priceApp > 0) & (creditsAcc >= priceApp) & ((appStatus = updated | (appStatus = outdated)) & (appSize > deviceCapacity): {updated, outdated};
-                        (priceApp > 0) & (creditsAcc < priceApp) & ((appStatus = updated | (appStatus = outdated)) & (appSize > deviceCapacity): {updated, outdated};
+                        (priceApp > 0) & (creditsAcc >= priceApp) &((appStatus = updated) | (appStatus = outdated)) & (appSize <= deviceCapacity): {updated, outdated};
+                        (priceApp > 0) & (creditsAcc < priceApp) & ((appStatus = updated) | (appStatus = outdated)) & (appStatus <= deviceCapacity): {updated, outdated};
+                        (priceApp > 0) & (creditsAcc >= priceApp) & ((appStatus = updated) | (appStatus = outdated)) & (appSize > deviceCapacity): {updated, outdated};
+                        (priceApp > 0) & (creditsAcc < priceApp) & ((appStatus = updated) | (appStatus = outdated)) & (appSize > deviceCapacity): {updated, outdated};
+
+                        --Desinstalar app instalado
+                        (appStatus = updated) | (appStatus = outdated): {uninstalled};
+
+                        -- Desinstalar app desinstalado
+                        (appStatus = uninstalled): {uninstalled};
                     esac;
+
+        -- Atualizando a capacidade do dispositivo
         next(deviceCapacity) :=
                     case
                         (appStatus = updated) | (appStatus = outdated): deviceCapacity - appSize;
                         (association = TRUE) & (appStatus = uninstalled): deviceCapacity + appSize;
                     esac;
+        
+        -- Atualizando os créditos da conta
         next(creditsAcc) :=
                     case
                         (appStatus = updated) | (appStatus = outdated): creditsAcc - priceApp;
                     esac;
+
+        -- Atualizando associação de um app
         next(association) :=
                     case
                         (appStatus = updated) | (appStatus = outdated): TRUE;
-                        (association = TRUE): TRUE;                   
+                        (association = TRUE): TRUE;   
+                    esac;          
     FAIRNESS
         running
 

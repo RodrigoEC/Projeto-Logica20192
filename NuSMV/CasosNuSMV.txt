@@ -1,4 +1,6 @@
 Casos NuSMV:
+
+	// Ja tratei os Casos de instalação
 	Instalar app, observando as instruções de instalação:
 		Casos app desinstalado:
 			Se app é gratuito e está desinstalado e o espaço é suficiente então o app sera instalado na sua ultima versão
@@ -16,14 +18,15 @@ Casos NuSMV:
 			Se app é pago e os créditos são suficientes e está instalado e o espaço não é suficente então o app contuará na versão em que se encontra
 			Se app é pago e os créditos não são suficientes e está instalado e o espaço não é suficente então o app contuará na versão em que se encontra
 
+	
 	Atualizar app observando as instruções:
 		Casos app desatualizado:
-			Se o app está desatualizado e o espaço é suficiente então sera atualizado
-			Se o app esta desatualizado e o espaço é insuficiente então continuará desatualizado
+			Se o app está desatualizado então sera atualizado
 		
 		Casos app atualizado:
 			Se o app está atualizado então continuará como está
 
+	// Ja tratei os caso de desinstalação
 	Remover:
 		Casos app instalado:
 			Se o app esta instalado então sera desinstalado:
