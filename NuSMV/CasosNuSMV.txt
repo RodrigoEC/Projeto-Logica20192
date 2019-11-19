@@ -18,26 +18,23 @@ Casos NuSMV:
 			Se app é pago e os créditos são suficientes e está instalado e o espaço não é suficente então o app contuará na versão em que se encontra
 			Se app é pago e os créditos não são suficientes e está instalado e o espaço não é suficente então o app contuará na versão em que se encontra
 
-	
+	// Falta tratar isso e fazer mais uma LTL que tem que ser relacionada a atualização do app.
 	Atualizar app observando as instruções:
 		Casos app desatualizado:
 			Se o app está desatualizado então sera atualizado
-		
 		Casos app atualizado:
 			Se o app está atualizado então continuará como está
+		Casos app desinstaldo
+			Se o app estiver desinstalado então estara desatualizado
+		Casos app instalado
+			Se o app estiver instalado podera estar atualizado ou desatualizado
 
 	// Ja tratei os caso de desinstalação
 	Remover:
 		Casos app instalado:
 			Se o app esta instalado então sera desinstalado:
-
-		Casos app desinstalado:
-			Se o app está desinstalado então continuará desinstalado
 	
-
+	// Ja tratei o caso de associação
 	Associação:
 		Casos associado:
 			Se o app ta isntalado então associação sera = true
-			Se o app ta associado então ja foi instalado
-		Casos não associado:
-			Se o app não está associado então nunca foi instalado
