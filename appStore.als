@@ -67,6 +67,8 @@ fact {
 
 //Instala aplicativo
 pred installApp[a:App, u:Usuario, d:Device]{
+	associateApp[a, u, d]
+	
 	d in (u.devices)  //dispositivo pertence ao usuario
 	a.name in (appsConta[u]) //app está nos apps associados da conta do usuário
 	a in (d.apps) //app está no dispositivo
@@ -81,7 +83,7 @@ pred associateApp[a:App, u:Usuario, d:Device]{
 	a.name !in (appsConta[u]) //app não está nos apps da conta do usuário
 	a !in (d.apps) //app não está nos apps do dispositivo
 
-	u.contas.associatedApps = u.contas.associatedApps + a.name
+	appsConta[u] = appsConta[u] + a.name
 	a.status = "installed"
 	d.apps = d.apps + a
 }
