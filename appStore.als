@@ -24,7 +24,7 @@ sig Conta {
 
 sig Device {
 	memory: Int,
-	apps: set Map
+	apps: set App
 }
 
 sig App {
@@ -65,6 +65,16 @@ fact {
 
 //---------------PREDICADOS---------------
 
+//Instala aplicativo
+pred installApp[a:App, u:Usuario, d:Device]{
+	d in (u.devices)  //dispositivo pertence ao usuario
+	a.name in (appsConta[u]) //app está nos apps associados da conta do usuário
+	a in (d.apps) //app está no dispositivo
+	
+	a.status = "installed"
+}
+
+
 //Associa aplicativo
 pred associateApp[a:App, u:Usuario, d:Device]{
 	d in (u.devices) //dispositivo pertence ao usuario
@@ -76,14 +86,7 @@ pred associateApp[a:App, u:Usuario, d:Device]{
 	d.apps = d.apps + a
 }
 
-//Instala aplicativo
-pred installApp[a:App, u:Usuario, d:Device]{
-	d in (u.devices)  //dispositivo pertence ao usuario
-	a.name in (appsConta[u]) //app está nos apps associados da conta do usuário
-	a in (d.apps) //app está no dispositivo
-	
-	a.status = "installed"
-}
+
 
 //Remove aplicativo
 pred removeApp[a:App, u:Usuario, d:Device]{
@@ -96,8 +99,6 @@ pred removeApp[a:App, u:Usuario, d:Device]{
 
 //Atualiza aplicativo
 pred updateApp[a:App, u:Usuario]{
-	a in (appsConta[u])
-	
 	
 }
 
@@ -109,4 +110,4 @@ fun appsConta[u:Usuario]: set String{
 
 pred show[] {
 }
-run show for 3
+run show for 2
