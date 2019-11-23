@@ -9,4 +9,4 @@ Pra testar se ta passando nas LTL`s
 NuSMV -bmc projeto.smv
 se não der contr exemplo é pq ta cert
 
-eu usei o vs code pra codar isso, mas pode ser no geany
+eu usei o vs code pra codar isso, mas pode ser no geany ou outro
