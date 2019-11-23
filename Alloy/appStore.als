@@ -71,11 +71,6 @@ fact insideDevice {
 	all d: Device | getMemory[d] > 0
 	all d: Device, a: App | (appInDevice[a, d]) => (a.getStatus = installed)
 	all d: Device, a: App| (appInDevice[a, d]) => minus[getMemory[d], sum(d.apps.size)] > 0
-
-	#Device = 1
-	#App = 2
-	#Device.apps = 2
-	all a: App | a.size > 0
 }
 
 
