@@ -1,17 +1,18 @@
 module appStore
 
 //DÚVIDAS
-//01) Usuário pode ter mais de uma conta mesmo?
+//01) Usuário pode ter mais de uma conta mesmo? (CHECK)
 //R1) Acho que não, um usuario só tem 1 conta, se tiver 2 contas são 2 usuarios
 
-//02) Um dispositivo pode ter apps se não estiver associado à nenhum usuário?
+//02) Um dispositivo pode ter apps se não estiver associado à nenhum usuário? (CHECK)
 //R2) Se um dispositivo tem um app ele tem que obrigatoriamente estar associado a um usuario.
 
-//03) Onde vai ficar o status do app?
+//03) Onde vai ficar o status do app? (CHECK)
 //R3) Acho q pode ficar dentro do app msm, a gente pode fazer um fact em que não existe app desinstalado
 //    em um device.
 
-//04) Haverão dois métodos (installApps e associateApp)? Pq um incrementa o objeto no set, e o outro atualizaria o status apenas.
+//04) Haverão dois métodos (installApps e associateApp)? 
+// Pq um incrementa o objeto no set, e o outro atualizaria o status apenas.
 //R4) Acho interessante que quando um app for instalado ele ja fazer o que o associate faz
 
 //05) Como será a recebeção da nova versão do app? Um novo objeto do tipo App com a versão diferente?
@@ -45,6 +46,8 @@ sig App {
 	version: one Version, // Eh isso
 	price: Int, // O price não pode ser menor que 0
 	status: one Status // (installed ou uninstalled)
+
+	// Um app poderia ter  "some " versions, aí ele teria a versão atual
 }
 
 sig Version{}
@@ -70,13 +73,20 @@ fact insideUser {
 fact insideDevice {
 	all d: Device | getMemory[d] > 0
 	all d: Device, a: App | (appInDevice[a, d]) => (a.getStatus = installed)
-	all d: Device, a: App| (appInDevice[a, d]) => minus[getMemory[d], sum(d.apps.size)] > 0
+	all d: Device, a: App| (appInDevice[a, d]) => (minus[getMemory[d], plus[getSize[a], getSize[a]]] >= 0) //Nao to conseguindo pensar de em um jeito pra fazer isso dar certo de vdd
+
 }
 
+fact insideApp {
+	all a: App | some d:Device | (getStatus[a] = installed) => (appInDevice[a, d]) 
+	all a: App | getPrice[a] >= 0
+	all a: App | getSize[a] > 0
+}
 
+fact insidestatus {
+	all s: Status | some status.s
 
-
-
+}
 
 
 
@@ -123,6 +133,10 @@ fun getSize[a: App]: one Int {
 	a.size
 }
 
+fun getPrice[a: App]: one Int {
+	a.price
+}
+
 -----------------ASSERT-----------------
 
 assert appStore {
@@ -135,13 +149,13 @@ assert User {
 	all u: User | getCredit[u] >= 0
 }
 
-assert Device {
-	all d: Device  | (minus[getMemory[d], sum(d.apps.size)] <= 0)
+
+assert App {
+	all a: App | a.price >= 0
+	// Falta fazer com que a soma dos preços dos apps não ultrapasse o valor dos creditos do usuario
 }
 
-
-
-
+// Falta fazer a parte de como atualizar um app 
 
 
 
@@ -154,4 +168,5 @@ run show for 10 Int
 check appStore for 5 
 check User for 500
 
-check Device for 30
+check App for 5 Int
+
