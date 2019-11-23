@@ -1,0 +1,12 @@
+Pra usar o NuSMV vc apenas baixa ele no site, abre o cmd e vai ate a pasta que vc extraiu o NuSMV e depois pra pasta bin.
+Pra testar se a sintaxe ta certo:
+No terminal
+1o) NuSMV.exe -int 
+2o) read_model -i projeto.smv
+se nao acusar nada ta certo
+
+Pra testar se ta passando nas LTL`s
+NuSMV -bmc projeto.smv
+se não der contr exemplo é pq ta cert
+
+eu usei o vs code pra codar isso, mas pode ser no geany
