@@ -72,7 +72,7 @@ MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSta
         next(association) :=
                     case
                         (appStatus != uninstalled): TRUE;
-                        TRUE: association;  
+                        (association = TRUE): TRUE;  
                     esac;
     FAIRNESS
         running
