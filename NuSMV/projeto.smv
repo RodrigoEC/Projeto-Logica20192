@@ -24,10 +24,16 @@ MODULE main
     SPEC AF (appStatus = installed -> appStatus = uninstalled)
     -- Verifica que dado um preço do app menor ou igual aos creditos da conta e appStatus = uninstalled, em algum momento no futuro o estado é installed
     LTLSPEC F (priceApp <= creditsAcc & appSize <= deviceCapacity & appStatus = uninstalled -> X (appStatus = installed))
-
     -- Verifica que dado um estado de appStatus = uninstalled, se priceApp > credtAcc ou appSize > deviceCapacity então o appStatus permance uninstalled
-    LTLSPEC G (appStatus = uninstalled & (priceApp > creditsAcc | appSize > deviceCapacity) -> X(appStatus = uninstalled))
-
+    LTLSPEC G (appStatus = uninstalled & (priceApp > creditsAcc | appSize > deviceCapacity) -> X (appStatus = uninstalled))
+	
+	-- Verifica que dado um estado de appStatus = uninstalled, se o attStatus = outdated então o attStatus permanece outdated ou futuramente poderá ser updated
+	LTLSPEC G (appStatus = uninstalled & attStatus = outdated) -> X (attStatus = outdated | attStatus = updated)
+	-- Verifica que dado um estado de appStatus = installed, se o attStatus = updated então o attStatus permanece updated ou futuramente poderá ser outdated
+	LTLSPEC G (appStatus = installed & attStatus = updated) -> X (attStatus = updated | attStatus = outdated)
+	-- Verifica que dado um estado de appStatus = uninstalled, o attStatus sera sempre outdated
+	LTLSPEC G (appStatus = uninstalled -> attStatus = outdated)
+	
 MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attStatus, association)
     ASSIGN
         next(appStatus) :=
@@ -51,6 +57,17 @@ MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSta
                         --Desinstalar app instalado
                         (appStatus = installed): {uninstalled};
                     esac;
+                    
+        next(attStatus) :=
+                    case
+                         -- Casos app desatualizado
+                        (appStatus = installed) & (attStatus = outdated): {updated};
+                        (appStatus = uninstalled) & (attStatus = outdated): {outdated};
+                        
+                        -- Casos app atualizado
+                        (appStatus = installed) & (attStatus = updated): {updated};   
+                    esac;
+        
         -- Atualizando associação de um app
         next(association) :=
                     case
@@ -60,7 +77,7 @@ MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSta
     FAIRNESS
         running
 
--- Isso aqui foi uma definições de umas parada que possivelmente eu usarei futuramente
+-- Isso aqui foi uma definições de algumas coisas que possivelmente eu usarei futuramente
 -- AF prepo -> Propoe que a condição sempre vai ser TRUE, no futuro.
 -- AG prepo -> Propoe que a condição seja sempre verdade em todos os estados.
 -- AX prepo -> Propoe que a condição seja alcançada no proximo estado.
