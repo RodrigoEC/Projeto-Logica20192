@@ -76,12 +76,3 @@ MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSta
                     esac;
     FAIRNESS
         running
-
--- Isso aqui foi uma definições de algumas coisas que possivelmente eu usarei futuramente
--- AF prepo -> Propoe que a condição sempre vai ser TRUE, no futuro.
--- AG prepo -> Propoe que a condição seja sempre verdade em todos os estados.
--- AX prepo -> Propoe que a condição seja alcançada no proximo estado.
-
--- F prepo -> Propoe que a condição vai ser TRUE, no futuro.
--- G prepo -> Propoe que a condição seja verdade em todos os estados.
--- X prepo -> Propoe que a condição seja alcançada no proximo estado.
