@@ -22,10 +22,10 @@ MODULE main
     SPEC AG !(appStatus != uninstalled & association = FALSE)
     -- Verifica que se o appStatus = installed então futuramente o appStatus sera uninstaled
     SPEC AF (appStatus = installed -> appStatus = uninstalled)
-    -- Verifica que dado um preço do app menor ou igual aos creditos da conta e appStatus = uninstalled, em algum momento no futuro o estado é installed
-    LTLSPEC F (priceApp <= creditsAcc & appSize <= deviceCapacity & appStatus = uninstalled -> X (appStatus = installed))
-    -- Verifica que dado um estado de appStatus = uninstalled, se priceApp > credtAcc ou appSize > deviceCapacity então o appStatus permance uninstalled
-    LTLSPEC G (appStatus = uninstalled & (priceApp > creditsAcc | appSize > deviceCapacity) -> X (appStatus = uninstalled))
+    -- Verifica que dado um preço do app menor ou igual aos creditos da conta, ou association = TRUE e appStatus = uninstalled e deviceCapacity >= appSize, em algum momento no futuro o estado é installed
+    LTLSPEC F ((priceApp <= creditsAcc | association) & appSize <= deviceCapacity & appStatus = uninstalled -> X (appStatus = installed))
+    -- Verifica que dado um estado de appStatus = uninstalled, se priceApp > credtAcc & association = FALSE ou appSize > deviceCapacity então o appStatus permance uninstalled
+    LTLSPEC G (appStatus = uninstalled & ((priceApp > creditsAcc & !association) | appSize > deviceCapacity) -> X (appStatus = uninstalled))
 	
 	-- Verifica que dado um estado de appStatus = uninstalled, se o attStatus = outdated então o attStatus permanece outdated ou futuramente poderá ser updated
 	LTLSPEC G (appStatus = uninstalled & attStatus = outdated) -> X (attStatus = outdated | attStatus = updated)
@@ -41,18 +41,18 @@ MODULE appStore(deviceCapacity, appStatus, creditsAcc, priceApp, appSize, attSta
                          -- Intalar app desinstalado
                         (priceApp = 0) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {installed};
                         (priceApp = 0) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
-                        (priceApp > 0) & (creditsAcc >= priceApp) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {installed};
-                        (priceApp > 0) & (creditsAcc < priceApp) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {uninstalled};
-                        (priceApp > 0) & (creditsAcc >= priceApp) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
-                        (priceApp > 0) & (creditsAcc < priceApp) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
+                        (priceApp > 0) & ((creditsAcc >= priceApp | association)) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {installed};
+                        (priceApp > 0) & ((creditsAcc < priceApp & !association)) & (appStatus = uninstalled) & (appSize <= deviceCapacity): {uninstalled};
+                        (priceApp > 0) & ((creditsAcc >= priceApp | association)) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
+                        (priceApp > 0) & ((creditsAcc < priceApp & !association)) & (appStatus = uninstalled) & (appSize > deviceCapacity): {uninstalled};
                         
                         -- Instalar app instalado
                         (priceApp = 0) & (appStatus = installed) & (appSize <= deviceCapacity): {installed};
                         (priceApp = 0) & (appStatus = installed) & (appSize > deviceCapacity): {installed};
-                        (priceApp > 0) & (creditsAcc >= priceApp) & (appStatus = installed) & (appSize <= deviceCapacity): {installed};
-                        (priceApp > 0) & (creditsAcc < priceApp) & (appStatus = installed) & (appSize <= deviceCapacity): {installed};
-                        (priceApp > 0) & (creditsAcc >= priceApp) & (appStatus = installed) & (appSize > deviceCapacity): {installed};
-                        (priceApp > 0) & (creditsAcc < priceApp) & (appStatus = installed) & (appSize > deviceCapacity): {installed};
+                        (priceApp > 0) & ((creditsAcc >= priceApp | association)) & (appStatus = installed) & (appSize <= deviceCapacity): {installed};
+                        (priceApp > 0) & ((creditsAcc < priceApp & !association)) & (appStatus = installed) & (appSize <= deviceCapacity): {installed};
+                        (priceApp > 0) & ((creditsAcc >= priceApp | association)) & (appStatus = installed) & (appSize > deviceCapacity): {installed};
+                        (priceApp > 0) & ((creditsAcc < priceApp & !association)) & (appStatus = installed) & (appSize > deviceCapacity): {installed};
 
                         --Desinstalar app instalado
                         (appStatus = installed): {uninstalled};
