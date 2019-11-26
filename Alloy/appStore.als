@@ -178,53 +178,63 @@ fun getVersion[a: App]: one Version {
 
 -----------------ASSERT-----------------
 
-assert appStore {
+assert usersInAppStore { //
 	-- Todos os usuários estão na appStore
 	all u:User | one ap:appStore |userInAppStore[u, ap]
 
-	-- Todos os apps estão na appStore
-	all a:App|  one ap:appStore | appInAppStore[a, ap]
-
-
 }
 
-assert User {
-	-- Todo dispositivo está associado a um usuário
-	all d: Device | one u: User | deviceInUser[d, u]
+assert appsInAppStore { // 
+	-- Não existem apps que não estão no set da AppStore
+	!(some a: App | one ap: appStore | !appInAppStore[a, ap])
+}
 
+assert userCredits {
 	-- Todo usuário tem crédito disponível maior ou igual à 0
 	all u: User | getCreditAvailable[u] >= 0
 
 }
 
-assert Device {
+assert sharedDevices {
 	-- Não existe dispositivo compartilhado pro 2 usuarios.
 	all d: Device | all disj u1, u2: User| (deviceInUser[d, u1] => !deviceInUser[d, u2])
 
+}
 
+assert independentDevice {
 	-- Não existe dispositivo sem usuário
 	all d: Device | one u: User | deviceInUser[d, u]
+}
 
+assert uninstalledAppInSomeDevice {
 	-- Não existem apps uninstalled no set de dispositivo
 	all d: Device | all a: d.apps |  a.getStatus = installed
 
 }
 
 
-assert App {
+assert appPrice {
 	-- O preço dos apps só pode ser igual ou maior que zero
 	all a: App | a.price >= 0
-
-	-- Não existem apps que não estão no set da AppStore
-	 !(some a: App | one ap: appStore | !appInAppStore[a, ap])
 }
+
 
 
 -----------------SETUP-----------------
 pred show[] {}
 run show for 10 Int
 
-check appStore for 5 
-check User for 5
-check Device for 5
-check App for 5 Int
+check userCredits for 5
+check sharedDevices for 5
+check appPrice for 5 Int
+
+
+check usersInAppStore  for 5
+
+check appsInAppStore for 5
+
+check independentDevice for 5
+
+check uninstalledAppInSomeDevice for 5
+
+
