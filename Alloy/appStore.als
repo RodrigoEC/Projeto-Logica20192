@@ -68,23 +68,30 @@ fact insideAppStore{
 }
 
 fact insideUser {
-	-- Todo device pertence a exatamente 1 usuario.
-	all d: Device | one u: User | deviceInUser[d, u]
-
 	-- A quantidade de crédito de um user sempre eh maior ou igual a 0.
 	all u: User | getCreditAvailable[u] >= 0
+
+	-- Um usuário tem pelo menos um device
+	all u: User | some d: Device | deviceInUser[d, u]
 
 	-- Se um app "A" está dentro de um dispositivo "D" e esse dispositivo pertence a um user "U"
 	--Então "A" está nos apps associados de "U".
 	all u: User, d: Device, a: App | (deviceInUser[d, u] && appInDevice[a, d]) => (appInAssociation[a, u])
+
+	-- Um User pode não ter apps associados
+	some u: User | all a: App | !(appInAssociation[a, u])
 }
 
 fact insideDevice {
+	-- Todo device pertence a exatamente 1 usuario.
+	all d: Device | one u: User | deviceInUser[d, u]
+
 	--A memória de um device não pode ser menor do que 0
 	all d: Device | getMemoryAvailable[d] >= 0
 
 	--Todos os apps em um device tem o status "installed"
 	all d: Device, a: App | (appInDevice[a, d]) => (getStatus[a] = installed)
+
 }
 
 fact insideApp {
@@ -99,6 +106,9 @@ fact insideApp {
 
 	-- Apps diferentes tem versões diferentes.
 	all disj a1, a2 : App | getVersion[a1] != getVersion[a2]
+
+	-- Apps podem estar dentro da AppStore e não estarem associados a algum User
+	some a:App | all u: User | one ap: appStore | appInAppStore[a, ap] && !appInAssociation[a, u]
 }
 
 
@@ -138,7 +148,6 @@ pred appInAssociation[a: App, u: User] {
 }
 
 
-
 -----------------FUN--------------------
 
 -- Função que retorna os creditos disponíveis de um user.
@@ -174,31 +183,51 @@ fun getVersion[a: App]: one Version {
 -----------------ASSERT-----------------
 
 assert appStore {
-	all u:User | one ap:appStore | (u in ap.usuarios)
-	all a:App|  one ap:appStore | (a in ap.allApps)
+	-- Todos os usuários estão na appStore
+	all u:User | one ap:appStore |userInAppStore[u, ap]
+
+	-- Todos os apps estão na appStore
+	all a:App|  one ap:appStore | appInAppStore[a, ap]
 }
 
 assert User {
-	all d: Device | one u: User | d in u.devices
+	-- Todo dispositivo está associado a um usuário
+	all d: Device | one u: User | deviceInUser[d, u]
+
+	-- Todo usuário tem crédito disponível maior ou igual à 0
 	all u: User | getCreditAvailable[u] >= 0
+
+	-- Um usuário pode não ter apps associados
+	some u: User | !(all a: App | appInAssociation[a, u])
+}
+
+assert Device {
+	-- Não existe dispositivo sem usuário
+	all d: Device | one u: User | deviceInUser[d, u]
+
+	-- Não existem apps uninstalled no set de dispositivo
+	all d: Device | all a: d.apps |  a.getStatus = installed
+
 }
 
 
 assert App {
+	-- O preço dos apps só pode ser igual ou maior que zero
 	all a: App | a.price >= 0
+
+	-- Podem existir apps que não estão associados a algum usuário
+	some a: App | (all u: User |  !appInAssociation[a, u])
+
+	-- Não existem apps que não estão no set da AppStore
+	 !(some a: App | one ap: appStore | ! appInAppStore[a, ap])
 }
 
 
-
-
-
-
+-----------------SETUP-----------------
 pred show[] {}
 run show for 10 Int
 
-
 check appStore for 5 
-check User for 500
-
+check User for 5
+check Device for 5
 check App for 5 Int
-
