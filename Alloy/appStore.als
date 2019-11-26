@@ -78,8 +78,6 @@ fact insideUser {
 	--Então "A" está nos apps associados de "U".
 	all u: User, d: Device, a: App | (deviceInUser[d, u] && appInDevice[a, d]) => (appInAssociation[a, u])
 
-	-- Um User pode não ter apps associados
-	some u: User | all a: App | !(appInAssociation[a, u])
 }
 
 fact insideDevice {
@@ -107,8 +105,6 @@ fact insideApp {
 	-- Apps diferentes tem versões diferentes.
 	all disj a1, a2 : App | getVersion[a1] != getVersion[a2]
 
-	-- Apps podem estar dentro da AppStore e não estarem associados a algum User
-	some a:App | all u: User | one ap: appStore | appInAppStore[a, ap] && !appInAssociation[a, u]
 }
 
 
@@ -188,6 +184,8 @@ assert appStore {
 
 	-- Todos os apps estão na appStore
 	all a:App|  one ap:appStore | appInAppStore[a, ap]
+
+
 }
 
 assert User {
@@ -197,11 +195,13 @@ assert User {
 	-- Todo usuário tem crédito disponível maior ou igual à 0
 	all u: User | getCreditAvailable[u] >= 0
 
-	-- Um usuário pode não ter apps associados
-	some u: User | !(all a: App | appInAssociation[a, u])
 }
 
 assert Device {
+	-- Não existe dispositivo compartilhado pro 2 usuarios.
+	all d: Device | all disj u1, u2: User| (deviceInUser[d, u1] => !deviceInUser[d, u2])
+
+
 	-- Não existe dispositivo sem usuário
 	all d: Device | one u: User | deviceInUser[d, u]
 
@@ -215,11 +215,8 @@ assert App {
 	-- O preço dos apps só pode ser igual ou maior que zero
 	all a: App | a.price >= 0
 
-	-- Podem existir apps que não estão associados a algum usuário
-	some a: App | (all u: User |  !appInAssociation[a, u])
-
 	-- Não existem apps que não estão no set da AppStore
-	 !(some a: App | one ap: appStore | ! appInAppStore[a, ap])
+	 !(some a: App | one ap: appStore | !appInAppStore[a, ap])
 }
 
 
